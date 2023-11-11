@@ -207,7 +207,7 @@ export default {
                 <ul class="uk-nav uk-nav-default inactive-item" uk-scrollspy-nav="closest: li; scroll: true; cls: active-item">
                     <li v-for="head1 in headingList.headArray">
                         <a :href="head1.href" v-if="head1.text!==undefined">{{ head1.text }}</a>
-                        <ul class="uk-nav-sub" style="padding-top: 0; padding-bottom: 0" v-if="head1.list!==undefined">
+                        <ul class="uk-nav-sub" style="padding-top: 0; padding-bottom: 0; padding-left: 5px" v-if="head1.list!==undefined">
                             <li v-for="head2 in head1.list.headArray">
                                 <a :href="head2.href" v-if="head2.text!==undefined">{{ head2.text }}</a>
                                 <ul v-if="head2.list!==undefined">
