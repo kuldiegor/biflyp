@@ -202,7 +202,6 @@ export default {
     },
     template: `
    <div style="position: fixed; top: 0px; left: 0px; width: 400px; z-index: 980" v-show="showTableOfContents">
-<!--            position: sticky; top: 0px; width: 400px-->
             <div class="uk-card uk-card-default uk-card-body" style="margin: 16px;width: 400px; ">
                 <h3 class="uk-card-title">Оглавление</h3>
                 <ul class="uk-nav uk-nav-default inactive-item" uk-scrollspy-nav="closest: li; scroll: true; cls: active-item">
@@ -237,7 +236,7 @@ export default {
                 </ul>
             </div>
         </div>
-        <div style="background-color: #CFD8DC/*#F5F5F5*/; top: 0px; position: absolute; width: 100%; min-height: 100%">
+        <div style="background-color: #CFD8DC; top: 0px; position: absolute; width: 100%; min-height: 100%">
             <div class="uk-card uk-card-default uk-card-body" v-html="html" style="margin-left: 436px; top: 0px; margin-top: 16px; margin-bottom: 16px; width: 50%"></div>
         </div>
     
