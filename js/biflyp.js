@@ -66,8 +66,13 @@ export default {
                     this.updateMarkdown(text);
                 });
         },
+        scrollPageToAnchor(){
+            window.location = window.location;
+        },
         updateMarkdown(mdText){
             this.html = this.md.render(mdText);
+            Vue.nextTick()
+                .then(() => this.scrollPageToAnchor());
         },
         parseHeadLevelByTag(tag) {
             /*
