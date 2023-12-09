@@ -8,4 +8,4 @@ dist
 *.iws
 *.iml
 *.ipr
-test.md
+test*.md

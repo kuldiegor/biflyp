@@ -67,7 +67,12 @@ export default {
                 });
         },
         scrollPageToAnchor(){
-            window.location = window.location;
+            let hash = window.location.hash;
+            if (hash===''){
+                return;
+            }
+            let elementById = document.getElementById(hash.slice(1));
+            elementById.scrollIntoView();
         },
         updateMarkdown(mdText){
             this.html = this.md.render(mdText);
@@ -163,6 +168,72 @@ export default {
                     ];
                 }
             });
+            this.md.core.ruler.push("image", state => {
+                let tokens = state.tokens;
+                let newTokens = [];
+                for (let i = 0; i<tokens.length; i++){
+                    let currentToken = tokens[i];
+                    if (currentToken.type !== 'paragraph_open'){
+                        newTokens.push(currentToken);
+                        continue;
+                    }
+                    let secondToken = tokens[i+1];
+                    if (secondToken===undefined || secondToken===null){
+                        newTokens.push(currentToken);
+                        continue;
+                    }
+
+                    if (secondToken.type !== 'inline'){
+                        newTokens.push(currentToken);
+                        continue;
+                    }
+
+                    if (secondToken.children===undefined || secondToken.children===null){
+                        newTokens.push(currentToken);
+                        continue;
+                    }
+                    let childOfSecondToken = secondToken.children[0];
+                    if (childOfSecondToken===undefined || childOfSecondToken===null){
+                        newTokens.push(currentToken);
+                        continue;
+                    }
+                    if (childOfSecondToken.type!=='image'){
+                        newTokens.push(currentToken);
+                        continue;
+                    }
+                    currentToken.attrs ??= [];
+                    currentToken.attrs.push(['uk-lightbox','']);
+
+                    let linkTokenOpen = new state.Token('link_open','a',1);
+                    linkTokenOpen.level = 1;
+                    linkTokenOpen.block=true;
+                    linkTokenOpen.map=currentToken.map;
+
+                    let src = childOfSecondToken.attrs
+                        .filter(attr => attr[0]==='src')
+                        .map(attr => attr[1])[0];
+                    if (src===undefined || src===null){
+                        newTokens.push(currentToken);
+                        continue;
+                    }
+                    linkTokenOpen.attrs = [['href',src]];
+
+                    let linkTokenClose = new state.Token('link_close','a',-1);
+                    linkTokenClose.level = 1;
+                    linkTokenClose.block=true;
+
+                    secondToken.level = 2;
+
+                    newTokens.push(
+                        currentToken,
+                        linkTokenOpen,
+                        secondToken,
+                        linkTokenClose,
+                    );
+                    i++;
+                }
+                state.tokens = newTokens;
+            });
         },
         isHostOwnInHref(href){
             if (href===undefined || href===null){
@@ -209,7 +280,7 @@ export default {
    <div style="position: fixed; top: 0px; left: 0px; width: 400px; z-index: 980" v-show="showTableOfContents">
             <div class="uk-card uk-card-default uk-card-body" style="margin: 16px;width: 400px; ">
                 <h3 class="uk-card-title">Оглавление</h3>
-                <ul class="uk-nav uk-nav-default inactive-item" uk-scrollspy-nav="closest: li; scroll: true; cls: active-item">
+                <ul id="uk-scrollspy-nav" class="uk-nav uk-nav-default inactive-item" uk-scrollspy-nav="closest: li; scroll: true; cls: active-item; offset: 16">
                     <li v-for="head1 in headingList.headArray">
                         <a :href="head1.href" v-if="head1.text!==undefined">{{ head1.text }}</a>
                         <ul class="uk-nav-sub" style="padding-top: 0; padding-bottom: 0; padding-left: 5px" v-if="head1.list!==undefined">
