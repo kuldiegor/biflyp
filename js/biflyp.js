@@ -14,6 +14,34 @@
     limitations under the License.
 */
 
+function scrollSpyNav() {
+    let windowHeight = document.documentElement.clientHeight;
+    let maxPassedHead = null;
+    for (let head of document.getElementById('md-html').querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+        let coords = head.getBoundingClientRect();
+        if (coords.top > -16 && coords.top < windowHeight){
+            maxPassedHead = head;
+            break;
+        }
+    }
+    if (maxPassedHead===null){
+        return;
+    }
+    let scrollSpyNav = document.getElementById('scrollspy-nav');
+    if (!scrollSpyNav){
+        return;
+    }
+    let hash = '#'+maxPassedHead.id;
+    for (let hrefNavElement of scrollSpyNav.querySelectorAll('a')) {
+        if (hrefNavElement.hash===hash){
+            hrefNavElement.className = 'active-item';
+            hrefNavElement.scrollIntoView();
+        } else {
+            hrefNavElement.className = '';
+        }
+    }
+}
+
 export default {
     props: {
         useHrefInLocation:{
@@ -69,6 +97,7 @@ export default {
         scrollPageToAnchor(){
             let hash = window.location.hash;
             if (hash===''){
+                scrollSpyNav();
                 return;
             }
             let elementById = document.getElementById(hash.slice(1));
@@ -270,17 +299,22 @@ export default {
                     this.fetchMarkdownByHref(href);
                 }
             }
+        },
+
+        initScrollSpyNav(){
+            window.addEventListener('scroll',scrollSpyNav);
         }
     },
     mounted() {
         this.initMd();
+        this.initScrollSpyNav();
         this.fetchMarkdown();
     },
     template: `
    <div style="position: fixed; top: 0px; left: 0px; width: 400px; z-index: 980" v-show="showTableOfContents">
-            <div class="uk-card uk-card-default uk-card-body" style="margin: 16px;width: 400px; ">
+            <div class="uk-card uk-card-default uk-card-body" style="margin: 16px;width: 400px; max-height: 900px">
                 <h3 class="uk-card-title">Оглавление</h3>
-                <ul id="uk-scrollspy-nav" class="uk-nav uk-nav-default inactive-item" uk-scrollspy-nav="closest: li; scroll: true; cls: active-item; offset: 16">
+                <ul id="scrollspy-nav" class="uk-nav uk-nav-default inactive-item" style="overflow-y: auto; max-height: 786px">
                     <li v-for="head1 in headingList.headArray">
                         <a :href="head1.href" v-if="head1.text!==undefined">{{ head1.text }}</a>
                         <ul class="uk-nav-sub" style="padding-top: 0; padding-bottom: 0; padding-left: 5px" v-if="head1.list!==undefined">
@@ -313,7 +347,7 @@ export default {
             </div>
         </div>
         <div style="background-color: #CFD8DC; top: 0px; position: absolute; width: 100%; min-height: 100%">
-            <div class="uk-card uk-card-default uk-card-body" v-html="html" style="margin-left: 436px; top: 0px; margin-top: 16px; margin-bottom: 16px; width: 50%"></div>
+            <div id="md-html" class="uk-card uk-card-default uk-card-body" v-html="html" style="margin-left: 436px; top: 0px; margin-top: 16px; margin-bottom: 16px; width: 50%"></div>
         </div>
     
 `
